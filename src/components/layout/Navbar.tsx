@@ -1,5 +1,16 @@
 import React from 'react';
-import { ArrowLeft, BookOpen, Search, BookmarkCheck, ShieldCheck } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  BookOpen, 
+  Search, 
+  BookmarkCheck, 
+  ShieldCheck, 
+  Sparkles, 
+  BookA, 
+  Info,
+  GraduationCap,
+  Layers
+} from 'lucide-react';
 import { PWAInstallButton } from '../pwa/PWAInstallButton';
 
 interface NavbarProps {
@@ -9,14 +20,19 @@ interface NavbarProps {
   onBack: () => void;
   onOpenSearch: () => void;
   onNavigateTab: (tab: string) => void;
+  onOpenAbout: () => void;
+  onOpenGlossary: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
+  currentTab,
   hasActiveReader,
   activeBookTitle,
   onBack,
   onOpenSearch,
   onNavigateTab,
+  onOpenAbout,
+  onOpenGlossary,
 }) => {
   return (
     <header className="sticky top-0 z-40 bg-[#064E3B] text-amber-50 border-b border-[#043327] shadow-md backdrop-blur-md">
@@ -45,12 +61,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <span className="font-serif font-bold text-sm sm:text-base tracking-wide text-amber-100 truncate">
                     Al-Maktabah
                   </span>
-                  <span className="text-[10px] uppercase font-mono tracking-widest text-amber-400/90 hidden sm:inline">
-                    · Ahlusunah
+                  <span className="text-[10px] uppercase font-mono tracking-widest text-amber-400/90 hidden md:inline">
+                    · Ensiklopedia Kaffah
                   </span>
                 </div>
                 <p className="text-[11px] text-emerald-200/80 font-arabic truncate" dir="rtl">
-                  المَكْتَبَةُ الإِسْلَامِيَّةُ الشَّامِلَةُ
+                  المَوْسُوعَةُ الإِسْلَامِيَّةُ الشَّامِلَةُ
                 </p>
               </div>
             </button>
@@ -66,28 +82,71 @@ export const Navbar: React.FC<NavbarProps> = ({
           )}
         </div>
 
+        {/* Center Desktop Navigation Shortcuts */}
+        <nav className="hidden lg:flex items-center gap-1 text-xs font-medium text-emerald-100">
+          <button
+            onClick={() => onNavigateTab('academy')}
+            className={`px-3 py-1.5 rounded-lg transition ${
+              currentTab === 'academy' ? 'bg-emerald-900 text-amber-300 font-bold' : 'hover:bg-emerald-900/50'
+            }`}
+          >
+            Akademi 9 Cabang
+          </button>
+          <button
+            onClick={() => onNavigateTab('encyclopedia')}
+            className={`px-3 py-1.5 rounded-lg transition ${
+              currentTab === 'encyclopedia' ? 'bg-emerald-900 text-amber-300 font-bold' : 'hover:bg-emerald-900/50'
+            }`}
+          >
+            Ensiklopedia Kaffah
+          </button>
+          <button
+            onClick={() => onNavigateTab('khutbah')}
+            className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 ${
+              currentTab === 'khutbah' ? 'bg-amber-400 text-emerald-950 font-bold shadow-xs' : 'hover:bg-emerald-900/50 text-amber-300'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Khutbah Studio AI</span>
+          </button>
+          <button
+            onClick={() => onNavigateTab('catalog')}
+            className={`px-3 py-1.5 rounded-lg transition ${
+              currentTab === 'catalog' ? 'bg-emerald-900 text-amber-300 font-bold' : 'hover:bg-emerald-900/50'
+            }`}
+          >
+            Kitab Digital
+          </button>
+        </nav>
+
         {/* Right actions */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          {/* Kamus Glosarium */}
+          <button
+            onClick={onOpenGlossary}
+            className="p-2 rounded-lg bg-emerald-900/50 hover:bg-emerald-800 text-amber-200 transition hidden sm:inline-flex"
+            title="Kamus Istilah & Glosarium Bahasa Arab"
+          >
+            <BookA className="w-4 h-4" />
+          </button>
+
           {/* Global Search Button */}
           <button
             onClick={onOpenSearch}
             className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-900/70 hover:bg-emerald-800 text-amber-100 text-xs font-medium border border-emerald-700/50 transition"
-            title="Cari Kitab, Hadits, Ayat, Ulama (Ctrl+K)"
+            title="Cari Kitab, Hadits, Ayat, Ulama"
           >
             <Search className="w-3.5 h-3.5 text-amber-400" />
             <span className="hidden sm:inline">Pencarian Ilmiah</span>
-            <kbd className="hidden md:inline text-[10px] bg-emerald-950/80 px-1.5 py-0.5 rounded text-amber-300 font-mono">
-              /
-            </kbd>
           </button>
 
-          {/* Quick Bookmarks shortcut */}
+          {/* Info Tentang Aplikasi & Kreator */}
           <button
-            onClick={() => onNavigateTab('profile')}
+            onClick={onOpenAbout}
             className="p-2 rounded-lg bg-emerald-900/50 hover:bg-emerald-800 text-amber-200 transition"
-            title="Penanda & Catatan Saya"
+            title="Tentang Aplikasi & Pengembang"
           >
-            <BookmarkCheck className="w-4 h-4" />
+            <Info className="w-4 h-4" />
           </button>
 
           {/* PWA Install Button */}

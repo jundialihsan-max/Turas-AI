@@ -1,6 +1,6 @@
 {
   "name": "Al-Maktabah Al-Islamiyyah",
-  "description": "Perpustakaan digital Islam Ahlusunah wal Jama'ah terverifikasi dengan mushaf Al-Qur'an, hadits kutubus sittah, kitab aqidah, fikih 4 mazhab, sirah, pencarian dalil ilmiah, dan modul belajar interaktif.",
+  "description": "Ensiklopedia Islam Digital dan Akademi Ilmu Syar'i (450 topik kurikulum 9 cabang ilmu, ensiklopedia syariat kaffah 12 pilar, perpustakaan manuskrip, dan Khutbah Studio AI).",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Library, Compass, GraduationCap, User } from 'lucide-react';
+import { Home, GraduationCap, Layers, Sparkles, User, Library } from 'lucide-react';
 
 interface BottomNavProps {
   currentTab: string;
@@ -18,10 +18,10 @@ export const BottomNav: React.FC<BottomNavProps> = ({
 
   const navItems = [
     { id: 'home', label: 'Beranda', labelAr: 'الرئيسية', icon: Home },
-    { id: 'catalog', label: 'Kitab', labelAr: 'الكتب', icon: Library },
-    { id: 'dalil', label: 'Dalil', labelAr: 'الأدلة', icon: Compass },
-    { id: 'learn', label: 'Belajar', labelAr: 'التعلم', icon: GraduationCap },
-    { id: 'profile', label: 'Profil', labelAr: 'الملف', icon: User },
+    { id: 'academy', label: 'Akademi', labelAr: 'الأكاديمية', icon: GraduationCap },
+    { id: 'encyclopedia', label: 'Ensiklopedia', labelAr: 'الموسوعة', icon: Layers },
+    { id: 'khutbah', label: 'Khutbah AI', labelAr: 'الخطب', icon: Sparkles, highlight: true },
+    { id: 'profile', label: 'Perpustakaan', labelAr: 'المكتبة', icon: Library },
   ];
 
   return (
@@ -35,14 +35,18 @@ export const BottomNav: React.FC<BottomNavProps> = ({
               key={item.id}
               onClick={() => onSelectTab(item.id)}
               className={`flex flex-col items-center justify-center gap-1 transition relative ${
-                isActive ? 'text-amber-300 font-semibold' : 'text-emerald-200/70 hover:text-amber-100'
+                isActive
+                  ? 'text-amber-300 font-semibold'
+                  : item.highlight
+                  ? 'text-amber-400/90 hover:text-amber-200'
+                  : 'text-emerald-200/70 hover:text-amber-100'
               }`}
             >
               {isActive && (
                 <span className="absolute top-0 w-8 h-1 bg-amber-400 rounded-b-full shadow-sm" />
               )}
               <Icon className={`w-5 h-5 ${isActive ? 'scale-110' : ''} transition-transform`} />
-              <span className="text-[11px] tracking-tight">{item.label}</span>
+              <span className="text-[10px] tracking-tight truncate max-w-full px-1">{item.label}</span>
             </button>
           );
         })}

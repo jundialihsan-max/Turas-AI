@@ -7,13 +7,19 @@ import { ReaderView } from './components/reader/ReaderView';
 import { DalilView } from './components/dalil/DalilView';
 import { LearnView } from './components/learn/LearnView';
 import { ProfileView } from './components/profile/ProfileView';
+import { AcademyView } from './components/academy/AcademyView';
+import { EncyclopediaView } from './components/encyclopedia/EncyclopediaView';
+import { KhutbahStudio } from './components/khutbah/KhutbahStudio';
 import { GlobalSearchModal } from './components/search/GlobalSearchModal';
+import { AboutModal } from './components/about/AboutModal';
+import { GlossaryModal } from './components/glossary/GlossaryModal';
+import { ReportModal } from './components/feedback/ReportModal';
 import { OfflineIndicator } from './components/pwa/OfflineIndicator';
 
 import { BOOKS_DATABASE } from './data/booksData';
 import { THEMATIC_DALIL_DATABASE } from './data/dalilData';
 import { LEARNING_MODULES_DATABASE } from './data/learningData';
-import { storage, defaultPreferences } from './utils/storage';
+import { storage } from './utils/storage';
 import { Book, Bookmark, UserNote, ReadingProgress, UserPreferences, DalilItem } from './types';
 
 interface NavState {
@@ -21,6 +27,7 @@ interface NavState {
   bookId?: string | null;
   chapterId?: string;
   category?: string;
+  branchId?: string;
 }
 
 export default function App() {
@@ -28,7 +35,13 @@ export default function App() {
   const [activeBookId, setActiveBookId] = useState<string | null>(null);
   const [activeChapterId, setActiveChapterId] = useState<string | undefined>(undefined);
   const [selectedCatalogCategory, setSelectedCatalogCategory] = useState<string>('all');
+  const [selectedAcademyBranch, setSelectedAcademyBranch] = useState<string>('aqidah');
+
+  // Modals state
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
+  const [isAboutOpen, setIsAboutOpen] = useState<boolean>(false);
+  const [isGlossaryOpen, setIsGlossaryOpen] = useState<boolean>(false);
+  const [isReportOpen, setIsReportOpen] = useState<boolean>(false);
 
   // History stack for in-app and Android Back button navigation
   const [navHistory, setNavHistory] = useState<NavState[]>([{ tab: 'home' }]);
@@ -65,8 +78,11 @@ export default function App() {
   // Sync Android / Browser Hardware Back Button via popstate
   useEffect(() => {
     const handlePopState = (e: PopStateEvent) => {
-      if (isSearchOpen) {
+      if (isSearchOpen || isAboutOpen || isGlossaryOpen || isReportOpen) {
         setIsSearchOpen(false);
+        setIsAboutOpen(false);
+        setIsGlossaryOpen(false);
+        setIsReportOpen(false);
         return;
       }
 
@@ -76,8 +92,8 @@ export default function App() {
         setActiveBookId(state.bookId || null);
         setActiveChapterId(state.chapterId);
         if (state.category) setSelectedCatalogCategory(state.category);
+        if (state.branchId) setSelectedAcademyBranch(state.branchId);
       } else {
-        // Fallback pop
         if (activeBookId) {
           setActiveBookId(null);
           setActiveChapterId(undefined);
@@ -89,7 +105,7 @@ export default function App() {
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [isSearchOpen, activeBookId, activeTab]);
+  }, [isSearchOpen, isAboutOpen, isGlossaryOpen, isReportOpen, activeBookId, activeTab]);
 
   // Navigate to a new state and push history
   const navigateTo = useCallback((newState: NavState) => {
@@ -104,18 +120,21 @@ export default function App() {
     setActiveBookId(newState.bookId || null);
     setActiveChapterId(newState.chapterId);
     if (newState.category) setSelectedCatalogCategory(newState.category);
+    if (newState.branchId) setSelectedAcademyBranch(newState.branchId);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   // Back button handler (both UI and Android)
   const handleBack = useCallback(() => {
-    if (isSearchOpen) {
+    if (isSearchOpen || isAboutOpen || isGlossaryOpen || isReportOpen) {
       setIsSearchOpen(false);
+      setIsAboutOpen(false);
+      setIsGlossaryOpen(false);
+      setIsReportOpen(false);
       return;
     }
 
     if (activeBookId) {
-      // Return from Reader to Catalog or Home
       setActiveBookId(null);
       setActiveChapterId(undefined);
       refreshUserData();
@@ -124,17 +143,18 @@ export default function App() {
 
     if (navHistory.length > 1) {
       const newHist = [...navHistory];
-      newHist.pop(); // remove current
+      newHist.pop();
       const prev = newHist[newHist.length - 1];
       setNavHistory(newHist);
       setActiveTab(prev.tab);
       setActiveBookId(prev.bookId || null);
       setActiveChapterId(prev.chapterId);
       if (prev.category) setSelectedCatalogCategory(prev.category);
+      if (prev.branchId) setSelectedAcademyBranch(prev.branchId);
     } else if (activeTab !== 'home') {
       setActiveTab('home');
     }
-  }, [isSearchOpen, activeBookId, navHistory, activeTab, refreshUserData]);
+  }, [isSearchOpen, isAboutOpen, isGlossaryOpen, isReportOpen, activeBookId, navHistory, activeTab, refreshUserData]);
 
   const handleOpenBook = useCallback((bookId: string, chapterId?: string) => {
     navigateTo({
@@ -149,6 +169,14 @@ export default function App() {
     navigateTo({
       tab: 'catalog',
       category: cat,
+    });
+  }, [navigateTo]);
+
+  const handleOpenCurriculumBranch = useCallback((branchId: string) => {
+    setSelectedAcademyBranch(branchId);
+    navigateTo({
+      tab: 'academy',
+      branchId,
     });
   }, [navigateTo]);
 
@@ -173,6 +201,8 @@ export default function App() {
           onBack={handleBack}
           onOpenSearch={() => setIsSearchOpen(true)}
           onNavigateTab={(tab) => navigateTo({ tab })}
+          onOpenAbout={() => setIsAboutOpen(true)}
+          onOpenGlossary={() => setIsGlossaryOpen(true)}
         />
       )}
 
@@ -198,7 +228,28 @@ export default function App() {
                 onNavigateTab={(tab) => navigateTo({ tab })}
                 onOpenSearch={() => setIsSearchOpen(true)}
                 onOpenCategory={handleOpenCategory}
+                onOpenAbout={() => setIsAboutOpen(true)}
+                onOpenGlossary={() => setIsGlossaryOpen(true)}
               />
+            )}
+
+            {activeTab === 'academy' && (
+              <AcademyView
+                preferences={preferences}
+                onUpdatePreferences={handleUpdatePreferences}
+                initialBranchId={selectedAcademyBranch}
+              />
+            )}
+
+            {activeTab === 'encyclopedia' && (
+              <EncyclopediaView
+                onOpenBook={handleOpenBook}
+                onOpenCurriculumTopic={handleOpenCurriculumBranch}
+              />
+            )}
+
+            {activeTab === 'khutbah' && (
+              <KhutbahStudio />
             )}
 
             {activeTab === 'catalog' && (
@@ -237,6 +288,8 @@ export default function App() {
                 onAddNewCustomDalil={(newDalil) => {
                   setAllDalils((prev) => [...prev, newDalil]);
                 }}
+                onOpenAbout={() => setIsAboutOpen(true)}
+                onOpenReportModal={() => setIsReportOpen(true)}
               />
             )}
           </>
@@ -261,6 +314,24 @@ export default function App() {
           setIsSearchOpen(false);
           navigateTo({ tab: 'dalil' });
         }}
+      />
+
+      {/* About App & Creator Attribution Modal (Section XIV) */}
+      <AboutModal
+        isOpen={isAboutOpen}
+        onClose={() => setIsAboutOpen(false)}
+      />
+
+      {/* Islamic Term Glossary & Arabic Lexicon */}
+      <GlossaryModal
+        isOpen={isGlossaryOpen}
+        onClose={() => setIsGlossaryOpen(false)}
+      />
+
+      {/* Scientific Error & Content Reporting Modal */}
+      <ReportModal
+        isOpen={isReportOpen}
+        onClose={() => setIsReportOpen(false)}
       />
     </div>
   );

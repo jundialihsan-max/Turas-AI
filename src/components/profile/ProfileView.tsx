@@ -15,7 +15,9 @@ import {
   PlusCircle, 
   BookOpen,
   ArrowRight,
-  Database
+  Database,
+  AlertTriangle,
+  Info
 } from 'lucide-react';
 import { Bookmark, UserNote, ReadingProgress, UserPreferences, Book, DalilItem } from '../../types';
 import { storage } from '../../utils/storage';
@@ -31,6 +33,8 @@ interface ProfileViewProps {
   onRefreshData: () => void;
   onAddNewCustomBook?: (book: Book) => void;
   onAddNewCustomDalil?: (dalil: DalilItem) => void;
+  onOpenAbout: () => void;
+  onOpenReportModal: () => void;
 }
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
@@ -43,8 +47,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   onRefreshData,
   onAddNewCustomBook,
   onAddNewCustomDalil,
+  onOpenAbout,
+  onOpenReportModal,
 }) => {
-  const [activeSubTab, setActiveSubTab] = useState<'bookmarks' | 'notes' | 'history' | 'admin'>('bookmarks');
+  const [activeSubTab, setActiveSubTab] = useState<'bookmarks' | 'notes' | 'history' | 'admin' | 'creator'>('bookmarks');
   const [nameInput, setNameInput] = useState(preferences.userName);
   const [isEditingName, setIsEditingName] = useState(false);
 
@@ -161,7 +167,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   return (
     <div className="space-y-6 pb-20">
       {/* Profile Header Card */}
-      <div className="bg-gradient-to-br from-emerald-900 to-stone-900 text-amber-50 rounded-2xl p-6 sm:p-8 shadow-md border border-emerald-800 space-y-4">
+      <div className="bg-gradient-to-br from-emerald-900 to-stone-900 text-amber-50 rounded-3xl p-6 sm:p-8 shadow-md border border-emerald-800 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-emerald-950 flex items-center justify-center font-bold text-xl shadow-md">
@@ -203,6 +209,13 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={onOpenReportModal}
+              className="px-3 py-1.5 rounded-lg bg-rose-900/60 hover:bg-rose-900 text-rose-200 border border-rose-700/50 text-xs font-semibold flex items-center gap-1.5 transition"
+            >
+              <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
+              <span>Lapor Koreksi</span>
+            </button>
             <PWAInstallButton />
           </div>
         </div>
@@ -231,7 +244,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             <span className="text-lg font-bold text-amber-300 font-mono">
               {preferences.completedLessons.length}
             </span>
-            <p className="text-[11px] text-emerald-200">Materi Selesai</p>
+            <p className="text-[11px] text-emerald-200">Topik Selesai</p>
           </div>
         </div>
       </div>
@@ -242,7 +255,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           { id: 'bookmarks', label: 'Penanda (Bookmark)', count: bookmarks.length },
           { id: 'notes', label: 'Catatan Pribadi', count: notes.length },
           { id: 'history', label: 'Riwayat Bacaan', count: readingHistory.length },
-          { id: 'admin', label: 'Panel Administrasi Konten', count: undefined },
+          { id: 'creator', label: 'Identitas Pengembang', count: undefined },
+          { id: 'admin', label: 'Panel Administrasi', count: undefined },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -311,9 +325,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             <div className="py-12 text-center bg-white rounded-2xl border border-stone-200 p-6 space-y-2">
               <BookmarkCheck className="w-8 h-8 text-stone-300 mx-auto" />
               <p className="text-xs text-stone-500">Belum ada penanda halaman yang disimpan.</p>
-              <p className="text-[11px] text-stone-400">
-                Gunakan ikon penanda di pojok bacaan saat membuka kitab untuk menyimpannya di sini.
-              </p>
             </div>
           )}
         </div>
@@ -367,9 +378,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             <div className="py-12 text-center bg-white rounded-2xl border border-stone-200 p-6 space-y-2">
               <PenTool className="w-8 h-8 text-stone-300 mx-auto" />
               <p className="text-xs text-stone-500">Belum ada catatan pelajaran yang disimpan.</p>
-              <p className="text-[11px] text-stone-400">
-                Ketuk ikon pena di samping teks kitab saat membaca untuk mencatat faidah ilmiah.
-              </p>
             </div>
           )}
         </div>
@@ -413,7 +421,67 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         </div>
       )}
 
-      {/* Tab 4: Admin Panel & Data Management */}
+      {/* Tab 4: Creator Attribution Section (Section XIV) */}
+      {activeSubTab === 'creator' && (
+        <div className="bg-white rounded-2xl p-6 sm:p-8 border border-stone-200 shadow-xs space-y-6">
+          <div className="flex items-center gap-3 pb-3 border-b border-stone-200">
+            <div className="p-2.5 rounded-xl bg-amber-100 text-amber-800">
+              <User className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-serif font-bold text-base text-stone-900">
+                Identitas Pembuat Aplikasi (Section XIV)
+              </h3>
+              <p className="text-xs text-stone-500">
+                Data resmi pengembang platform Al-Maktabah Al-Islamiyyah
+              </p>
+            </div>
+          </div>
+
+          <div className="p-5 rounded-2xl bg-amber-50/70 border border-amber-200 space-y-3 text-xs sm:text-sm">
+            <div className="space-y-1.5">
+              <p>
+                <strong>Nama Aplikasi:</strong>{' '}
+                <span className="font-serif font-bold text-stone-900">Al-Maktabah Al-Islamiyyah</span>
+              </p>
+              <p>
+                <strong>Nama Lengkap Pengembang:</strong>{' '}
+                <span className="font-semibold text-emerald-950">Jundi Abdul Syahid, S.Pd.</span>
+              </p>
+              <p>
+                <strong>Identitas Kreator:</strong>{' '}
+                <span className="font-semibold text-stone-800">Orang Dalam Genetik Jawa</span>
+              </p>
+            </div>
+
+            <div className="border-t border-amber-200/60 pt-3 space-y-1">
+              <strong>Deskripsi Platform:</strong>
+              <p className="text-stone-700 leading-relaxed italic">
+                "Perpustakaan digital dan platform pembelajaran Islam yang dikembangkan untuk memudahkan penelusuran kitab, dalil, dan khazanah keilmuan Islam."
+              </p>
+            </div>
+          </div>
+
+          <div className="pt-2 flex items-center gap-3">
+            <button
+              onClick={onOpenAbout}
+              className="px-4 py-2 bg-emerald-800 hover:bg-emerald-900 text-amber-100 rounded-xl text-xs font-semibold shadow-xs flex items-center gap-2"
+            >
+              <Info className="w-4 h-4" />
+              <span>Buka Modal Lengkap Tentang Aplikasi</span>
+            </button>
+            <button
+              onClick={onOpenReportModal}
+              className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-semibold flex items-center gap-1.5"
+            >
+              <AlertTriangle className="w-3.5 h-3.5 text-rose-600" />
+              <span>Sampaikan Koreksi Naskah</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Tab 5: Admin Panel & Data Management */}
       {activeSubTab === 'admin' && (
         <div className="space-y-6">
           <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-xs space-y-4">
@@ -441,16 +509,16 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               <div className="p-3.5 rounded-xl bg-stone-50 border border-stone-200 space-y-1">
                 <span className="font-bold text-stone-800">Status Integritas Data</span>
                 <p className="text-emerald-700 font-semibold flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Terverifikasi Aman
+                  <CheckCircle2 className="w-3.5 h-3.5" /> 450 Topik Terverifikasi
                 </p>
               </div>
               <div className="p-3.5 rounded-xl bg-stone-50 border border-stone-200 space-y-1">
                 <span className="font-bold text-stone-800">Penyimpanan Aktif</span>
-                <p className="text-stone-600">Lokal Browser (Indexed/Local)</p>
+                <p className="text-stone-600">Lokal Browser + Cache PWA</p>
               </div>
               <div className="p-3.5 rounded-xl bg-stone-50 border border-stone-200 space-y-1">
-                <span className="font-bold text-stone-800">Mode Sinkronisasi</span>
-                <p className="text-amber-700 font-semibold">Mode Offline Mandiri</p>
+                <span className="font-bold text-stone-800">Khutbah Studio AI</span>
+                <p className="text-emerald-700 font-semibold">Tersedia Full-Stack</p>
               </div>
             </div>
           </div>
@@ -513,9 +581,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="font-semibold text-stone-700 block mb-1">
-                  Judul Indonesia:
-                </label>
+                <label className="font-semibold text-stone-700 block mb-1">Judul Indonesia:</label>
                 <input
                   type="text"
                   value={newBookTitleId}
@@ -526,9 +592,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               </div>
 
               <div>
-                <label className="font-semibold text-stone-700 block mb-1">
-                  Judul Arab (dengan harakat bila tersedia):
-                </label>
+                <label className="font-semibold text-stone-700 block mb-1">Judul Arab:</label>
                 <input
                   type="text"
                   value={newBookTitleAr}
@@ -541,21 +605,17 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-semibold text-stone-700 block mb-1">
-                    Nama Penulis (Mu'allif):
-                  </label>
+                  <label className="font-semibold text-stone-700 block mb-1">Nama Penulis:</label>
                   <input
                     type="text"
                     value={newBookAuthor}
                     onChange={(e) => setNewBookAuthor(e.target.value)}
-                    placeholder="Contoh: Syaikh Muhammad bin Abdul Wahhab"
+                    placeholder="Nama Ulama / Penulis"
                     className="w-full p-2.5 rounded-lg border border-stone-300 text-xs"
                   />
                 </div>
                 <div>
-                  <label className="font-semibold text-stone-700 block mb-1">
-                    Kategori Ilmu:
-                  </label>
+                  <label className="font-semibold text-stone-700 block mb-1">Kategori:</label>
                   <select
                     value={newBookCategory}
                     onChange={(e) => setNewBookCategory(e.target.value)}
@@ -571,13 +631,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               </div>
 
               <div>
-                <label className="font-semibold text-stone-700 block mb-1">
-                  Deskripsi / Pengantar Kitab:
-                </label>
+                <label className="font-semibold text-stone-700 block mb-1">Deskripsi:</label>
                 <textarea
                   value={newBookDesc}
                   onChange={(e) => setNewBookDesc(e.target.value)}
-                  placeholder="Uraian singkat mengenai isi dan metodologi naskah..."
+                  placeholder="Uraian ringkas isi kitab..."
                   rows={2}
                   className="w-full p-2.5 rounded-lg border border-stone-300 text-xs"
                 />
@@ -589,7 +647,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   type="text"
                   value={newBookChapterTitle}
                   onChange={(e) => setNewBookChapterTitle(e.target.value)}
-                  placeholder="Judul Bab Pertama (Contoh: Bab Keutamaan Tauhid)"
+                  placeholder="Judul Bab Pertama"
                   className="w-full p-2 rounded-lg border border-stone-300 text-xs mb-2"
                 />
                 <textarea
