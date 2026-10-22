@@ -1,0 +1,6 @@
+{
+  "name": "Al-Maktabah Al-Islamiyyah",
+  "description": "Perpustakaan digital Islam Ahlusunah wal Jama'ah terverifikasi dengan mushaf Al-Qur'an, hadits kutubus sittah, kitab aqidah, fikih 4 mazhab, sirah, pencarian dalil ilmiah, dan modul belajar interaktif.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
