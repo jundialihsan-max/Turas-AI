@@ -130,6 +130,20 @@ export const Navbar: React.FC<NavbarProps> = ({
             <BookA className="w-4 h-4" />
           </button>
 
+          {/* Admin CMS Button */}
+          <button
+            onClick={() => onNavigateTab('admin')}
+            className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 text-xs font-semibold ${
+              currentTab === 'admin'
+                ? 'bg-amber-400 text-emerald-950 font-bold shadow-xs'
+                : 'bg-emerald-900/80 hover:bg-emerald-800 text-amber-200 border border-emerald-700/60'
+            }`}
+            title="Admin Dashboard — Manajemen Konten Islam"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+            <span className="hidden sm:inline">Admin CMS</span>
+          </button>
+
           {/* Global Search Button */}
           <button
             onClick={onOpenSearch}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   GraduationCap, 
   BookOpen, 
@@ -14,7 +14,9 @@ import {
   Sparkles,
   Layers,
   Flame,
-  FileCheck
+  FileCheck,
+  Edit3,
+  AlertTriangle
 } from 'lucide-react';
 import { 
   CURRICULUM_BRANCHES, 
@@ -25,30 +27,51 @@ import {
 } from '../../data/curriculum';
 import { UserPreferences } from '../../types';
 import { storage } from '../../utils/storage';
+import { cmsClient } from '../../utils/cmsClient';
+import { adminAuth } from '../../utils/adminAuth';
+import { CMSTopic, CMSCategory } from '../../types/cms';
 
 interface AcademyViewProps {
   preferences: UserPreferences;
   onUpdatePreferences: (prefs: Partial<UserPreferences>) => void;
   initialBranchId?: string;
+  onOpenAdminTopic?: (topicId: string) => void;
 }
 
 export const AcademyView: React.FC<AcademyViewProps> = ({
   preferences,
   onUpdatePreferences,
   initialBranchId,
+  onOpenAdminTopic,
 }) => {
-  const [activeBranchId, setActiveBranchId] = useState<CurriculumBranchId>(
-    (initialBranchId as CurriculumBranchId) || 'aqidah'
+  const [categories, setCategories] = useState<CMSCategory[]>([]);
+  const [allTopics, setAllTopics] = useState<CMSTopic[]>([]);
+  const [activeBranchId, setActiveBranchId] = useState<string>(
+    initialBranchId || 'aqidah'
   );
-  const [selectedTopic, setSelectedTopic] = useState<CurriculumTopic | null>(null);
+  const [selectedTopic, setSelectedTopic] = useState<CMSTopic | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   // Quiz state within topic
   const [selectedQuizOption, setSelectedQuizOption] = useState<number | null>(null);
   const [isQuizSubmitted, setIsQuizSubmitted] = useState<boolean>(false);
 
-  const activeBranch = CURRICULUM_BRANCHES.find((b) => b.id === activeBranchId) || CURRICULUM_BRANCHES[0];
-  const branchTopics = TOPICS_BY_CATEGORY[activeBranchId] || [];
+  useEffect(() => {
+    const load = async () => {
+      const [cats, tops] = await Promise.all([
+        cmsClient.getCategories(),
+        cmsClient.getAllTopics(),
+      ]);
+      setCategories(cats);
+      setAllTopics(tops);
+    };
+    load();
+    const unsub = cmsClient.subscribe(load);
+    return unsub;
+  }, []);
+
+  const activeBranch = categories.find((b) => b.id === activeBranchId) || categories[0] || CURRICULUM_BRANCHES[0];
+  const branchTopics = allTopics.filter((t) => t.categoryId === activeBranchId);
 
   const filteredTopics = branchTopics.filter((t) => {
     if (!searchQuery.trim()) return true;
@@ -61,7 +84,7 @@ export const AcademyView: React.FC<AcademyViewProps> = ({
     );
   });
 
-  const handleOpenTopic = (topic: CurriculumTopic) => {
+  const handleOpenTopic = (topic: CMSTopic) => {
     setSelectedTopic(topic);
     setSelectedQuizOption(null);
     setIsQuizSubmitted(false);
@@ -106,10 +129,11 @@ export const AcademyView: React.FC<AcademyViewProps> = ({
             </div>
           </div>
 
-          {/* 9 Branches Horizontal Tab Selector */}
+          {/* Dynamic Branches Horizontal Tab Selector */}
           <div className="pt-2 flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-            {CURRICULUM_BRANCHES.map((b) => {
+            {categories.map((b) => {
               const isActive = b.id === activeBranchId;
+              const count = allTopics.filter((t) => t.categoryId === b.id).length;
               return (
                 <button
                   key={b.id}
@@ -125,7 +149,7 @@ export const AcademyView: React.FC<AcademyViewProps> = ({
                 >
                   <span>{b.name}</span>
                   <span className="font-mono text-[10px] px-1.5 py-0.2 rounded-full bg-black/10">
-                    50
+                    {count}
                   </span>
                 </button>
               );
@@ -218,6 +242,17 @@ export const AcademyView: React.FC<AcademyViewProps> = ({
             </button>
 
             <div className="flex items-center gap-2">
+              {adminAuth.isAdmin() && onOpenAdminTopic && (
+                <button
+                  onClick={() => onOpenAdminTopic(selectedTopic.id)}
+                  className="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-emerald-950 font-bold text-xs flex items-center gap-1.5 shadow-xs transition"
+                  title="Edit Seluruh Bagian Materi Ini di CMS"
+                >
+                  <Edit3 className="w-3.5 h-3.5 text-emerald-900" />
+                  <span>Edit di CMS</span>
+                </button>
+              )}
+
               <span className="text-[11px] font-mono uppercase bg-emerald-50 text-emerald-900 font-semibold px-2 py-0.5 rounded border border-emerald-200">
                 {selectedTopic.categoryName} · #{selectedTopic.number}
               </span>
@@ -247,6 +282,25 @@ export const AcademyView: React.FC<AcademyViewProps> = ({
               {selectedTopic.titleAr}
             </p>
           </div>
+
+          {/* Notice: Transparent in_progress alert */}
+          {selectedTopic.status === 'in_progress' && (
+            <div className="rounded-2xl bg-amber-50/90 border border-amber-300 p-6 sm:p-8 text-center space-y-3">
+              <AlertTriangle className="w-8 h-8 text-amber-700 mx-auto" />
+              <h3 className="font-serif font-bold text-lg text-amber-950">Materi ini sedang disusun</h3>
+              <p className="text-xs sm:text-sm text-stone-600 max-w-lg mx-auto leading-relaxed">
+                Konten lengkap belum tersedia atau sedang dalam proses verifikasi rujukan kitab muktabar Ahlusunah wal Jama'ah. Pengelola berkomitmen menjaga amanah ilmiah dan tidak menampilkan kutipan sebelum terverifikasi.
+              </p>
+              {adminAuth.isAdmin() && onOpenAdminTopic && (
+                <button
+                  onClick={() => onOpenAdminTopic(selectedTopic.id)}
+                  className="px-4 py-2 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-amber-100 font-bold text-xs shadow-xs transition"
+                >
+                  Lengkapi Naskah Materi Ini di Panel CMS
+                </button>
+              )}
+            </div>
+          )}
 
           {/* 2. Tujuan Pembelajaran */}
           <div className="rounded-xl bg-amber-50/70 border border-amber-200/80 p-4 space-y-1 text-xs sm:text-sm">

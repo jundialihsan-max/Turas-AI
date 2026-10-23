@@ -15,6 +15,7 @@ import { AboutModal } from './components/about/AboutModal';
 import { GlossaryModal } from './components/glossary/GlossaryModal';
 import { ReportModal } from './components/feedback/ReportModal';
 import { OfflineIndicator } from './components/pwa/OfflineIndicator';
+import { AdminDashboardView } from './components/admin/AdminDashboardView';
 
 import { BOOKS_DATABASE } from './data/booksData';
 import { THEMATIC_DALIL_DATABASE } from './data/dalilData';
@@ -238,6 +239,17 @@ export default function App() {
                 preferences={preferences}
                 onUpdatePreferences={handleUpdatePreferences}
                 initialBranchId={selectedAcademyBranch}
+                onOpenAdminTopic={(topicId) => {
+                  navigateTo({ tab: 'admin' });
+                }}
+              />
+            )}
+
+            {activeTab === 'admin' && (
+              <AdminDashboardView
+                onBackToApp={() => navigateTo({ tab: 'home' })}
+                onOpenBook={handleOpenBook}
+                onNavigateTab={(tab) => navigateTo({ tab })}
               />
             )}
 
@@ -290,6 +302,7 @@ export default function App() {
                 }}
                 onOpenAbout={() => setIsAboutOpen(true)}
                 onOpenReportModal={() => setIsReportOpen(true)}
+                onNavigateTab={(tab) => navigateTo({ tab })}
               />
             )}
           </>

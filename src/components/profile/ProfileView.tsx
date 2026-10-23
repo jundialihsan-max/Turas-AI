@@ -35,6 +35,7 @@ interface ProfileViewProps {
   onAddNewCustomDalil?: (dalil: DalilItem) => void;
   onOpenAbout: () => void;
   onOpenReportModal: () => void;
+  onNavigateTab?: (tab: string) => void;
 }
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
@@ -49,6 +50,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   onAddNewCustomDalil,
   onOpenAbout,
   onOpenReportModal,
+  onNavigateTab,
 }) => {
   const [activeSubTab, setActiveSubTab] = useState<'bookmarks' | 'notes' | 'history' | 'admin' | 'creator'>('bookmarks');
   const [nameInput, setNameInput] = useState(preferences.userName);
@@ -492,13 +494,24 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   Panel Administrasi Konten & Verifikasi Naskah
                 </h3>
               </div>
-              <button
-                onClick={() => setShowAddBookModal(true)}
-                className="px-3.5 py-2 bg-emerald-800 hover:bg-emerald-900 text-amber-100 rounded-xl text-xs font-semibold shadow-xs flex items-center gap-2"
-              >
-                <PlusCircle className="w-4 h-4" />
-                <span>Tambah Kitab Terverifikasi</span>
-              </button>
+              <div className="flex items-center gap-2">
+                {onNavigateTab && (
+                  <button
+                    onClick={() => onNavigateTab('admin')}
+                    className="px-4 py-2 bg-amber-400 hover:bg-amber-300 text-emerald-950 rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5 transition"
+                  >
+                    <ShieldCheck className="w-4 h-4 text-emerald-900" />
+                    <span>Buka Admin Dashboard CMS Lengkap</span>
+                  </button>
+                )}
+                <button
+                  onClick={() => setShowAddBookModal(true)}
+                  className="px-3.5 py-2 bg-emerald-800 hover:bg-emerald-900 text-amber-100 rounded-xl text-xs font-semibold shadow-xs flex items-center gap-2"
+                >
+                  <PlusCircle className="w-4 h-4" />
+                  <span>Tambah Kitab</span>
+                </button>
+              </div>
             </div>
 
             <p className="text-xs text-stone-600 leading-relaxed">

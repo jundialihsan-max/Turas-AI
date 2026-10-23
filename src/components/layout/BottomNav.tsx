@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, GraduationCap, Layers, Sparkles, User, Library } from 'lucide-react';
+import { Home, GraduationCap, ShieldCheck, Sparkles, Library } from 'lucide-react';
 
 interface BottomNavProps {
   currentTab: string;
@@ -19,8 +19,8 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   const navItems = [
     { id: 'home', label: 'Beranda', labelAr: 'الرئيسية', icon: Home },
     { id: 'academy', label: 'Akademi', labelAr: 'الأكاديمية', icon: GraduationCap },
-    { id: 'encyclopedia', label: 'Ensiklopedia', labelAr: 'الموسوعة', icon: Layers },
-    { id: 'khutbah', label: 'Khutbah AI', labelAr: 'الخطب', icon: Sparkles, highlight: true },
+    { id: 'admin', label: 'Admin CMS', labelAr: 'الإدارة', icon: ShieldCheck, highlight: true },
+    { id: 'khutbah', label: 'Khutbah AI', labelAr: 'الخطب', icon: Sparkles },
     { id: 'profile', label: 'Perpustakaan', labelAr: 'المكتبة', icon: Library },
   ];
 
